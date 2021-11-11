@@ -1,0 +1,161 @@
+---
+title: "Assignment 3"
+author: V. Haugland & J. Christoffersen
+output:
+  pdf_document: default
+  html_notebook: default
+  html_document:
+    df_print: paged
+  word_document: default
+lang: no-NB
+---
+
+
+```{r setup, message=FALSE, echo=FALSE}
+library(readr)
+library(tibble)
+library(prettydoc)
+library(knitr)
+library(tidyverse)
+library(dplyr)
+options(scipen = 999)
+```
+
+# Spørsmål
+
+## Spørsmål 1
+Filen fileddf_concepts.csv inneholder ikke dataverdier, men er en tekstfil. Den gir oversikt over informasjon om ulike variabler som for eksempel: populasjonsforhold, sykdomsforhold, arbeidsforhold (arbeidsledighet), antall dødsfall i alder mellom 1-59 måneder og dødsfall av nyfødte barn. Filen inneholder også informasjon om variabler som beskriver lands økonomiske forhold, som BNP.
+
+## Spørsmål 2
+Filen fileddf--entities--geo--country.csv innholder en oversikt over land og stater. Her beskrives diverse informasjon om levestandard, FN-tilhørighet, inntekt i ulike land kategorisert i lav, middels og høy inntekt.
+Den har også med hvor lokasjonsinformasjon, som for eksempel hvilke region hvert land tilhører. 
+
+## Spørsmål 3
+Filen fileddf--entities--geo--un_sdg_region.csv definerer hvilke områder som er FN-regioner.
+
+## Spørsmål 4
+What variables does thegapminderdataset from thegapminderpackage contain? To what continentare Australia and New Zealand assigned?
+
+Gapminder datasettet er en pakke som består av 1704 rader og 6 variabler. De 6 variablene er:
+
+- Country: En faktor med 142 nivåer
+
+- Continent: En faktor med 5 nivåer
+
+- Year: Rangeres fra år 1952 til 2007 med trinn på 5 år
+
+- Pop: Viser populasjon
+
+- gdpPercap: Viser BNP per innbygger i US $, og er er justert for inflasjon
+
+## Spørsmål 5
+
+Videre rekonstrueres continent variabelen fra gapminder datasett. Kun land med koden aiso3166_1_alpha3 inkluderes og tibbelen kalles "g_c".
+
+
+```{r g_c}
+g_c <- read_csv("ddf--gapminder--systema_globalis/ddf--entities--geo--country.csv")
+print (g_c)
+```
+
+
+```{r spec}
+spec(g_c)
+```
+
+
+```{r continents}
+g_c <- g_c%>%
+  mutate(continent = case_when(
+    world_4region == "asia" & un_sdg_region %in% c("un_australia_and_new_zealand","un_oceania_exc_australia_and_new_zealand") ~ "Oceania",
+    world_4region == "asia" & !(un_sdg_region %in% c("un_australia_and_new_zealand", "un_oceania_exc_australia_and_new_zealand")) ~ "Asia",
+    world_4region == "africa" ~ "Africa",
+    world_4region == "americas" ~ "Americas",
+    world_4region == "europe" ~ "Europe")
+  ) %>% 
+  filter(!is.na(iso3166_1_alpha3))
+```
+
+## Spørsmål 6
+### 1
+
+Viser hvor mange land det er nå:
+
+```{r antall_land}
+length(unique(g_c$country))
+```
+
+### 2
+
+Viser hvor mange land det nå er i hvert kontinent:
+
+```{r land_i_kontinent}
+g_c %>% 
+  group_by(continent) %>% 
+  summarise(countries = length(unique(country)))
+```
+
+
+## Spørsmål 7
+
+Ny variabel "lifeExp"
+
+```{r lifeExp}
+
+lifeExp <- read_csv("ddf--gapminder--systema_globalis/countries-etc-datapoints/ddf--datapoints--life_expectancy_years--by--geo--time.csv",
+                    
+col_types = cols(time = col_date(format = "%Y")))
+
+lifeExp <- lifeExp %>%
+  rename(year = time)
+names(lifeExp)
+length(unique(lifeExp$geo))
+                
+```
+
+
+## Spørsmål 8
+
+Viser hvor mange land som har informasjon om lifeExp:
+
+```{r land_lifeExp}
+length(unique(lifeExp$geo))
+```
+
+Fra datasettet *lifeExp* ser vi at 195 har opplysninger om forventet levetid.
+
+## Spørsmål 9
+Reduserer g_c til disse variablene: country, name, iso3166_1_alpha3, un_sdg_region, world_4region, con-tinent, world_6region.
+
+```{r redusert_g_c_datasett}
+g_c <- g_c %>%
+  select(country, name, iso3166_1_alpha3, un_sdg_region, world_4region, continent, world_6region) %>%
+  left_join(lifeExp, by = c("country" = "geo"))
+names(g_c)
+
+```
+
+
+## Spørsmål 10
+
+Viser den første observasjonen av lifeExp i ulike land:
+
+```{r minyear}
+g_c_min <- g_c %>% 
+  group_by(country) %>% 
+  summarise(min_year = min(year))
+table(g_c_min$min_year)
+```
+
+
+Vi ser at 186 land har data om forventet levetid fra 1800, og 9 land har data om forventet levetid fra 1950.
+
+## Spørsmål 11
+
+De 9 landene som har data om forventet levetid fra 1950 er:
+
+```{r 1950}
+g_c_min %>% 
+  filter(min_year == "1950-01-01")
+```
+
