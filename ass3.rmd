@@ -130,10 +130,14 @@ Reduserer g_c til disse variablene: country, name, iso3166_1_alpha3, un_sdg_regi
 ```{r redusert_g_c_datasett}
 g_c <- g_c %>%
   select(country, name, iso3166_1_alpha3, un_sdg_region, world_4region, continent, world_6region) %>%
-  left_join(lifeExp, by = c("country" = "geo"))
+  left_join(lifeExp, by = c("country" = "geo")) %>% 
+  filter(!(is.na(year) & is.na(life_expectancy_years))) %>%
+  filter(year < "2020-01-01")
 names(g_c)
-
+rm(lifeExp)
 ```
+
+(Måtte ta rm lifeExp for å redusere et enormt antall observasjoner)
 
 
 ## Spørsmål 10
@@ -150,6 +154,7 @@ table(g_c_min$min_year)
 
 Vi ser at 186 land har data om forventet levetid fra 1800, og 9 land har data om forventet levetid fra 1950.
 
+
 ## Spørsmål 11
 
 De 9 landene som har data om forventet levetid fra 1950 er:
@@ -157,5 +162,100 @@ De 9 landene som har data om forventet levetid fra 1950 er:
 ```{r 1950}
 g_c_min %>% 
   filter(min_year == "1950-01-01")
+```
+
+## Spørsmål 12
+
+```{r total_poplation}
+pop <- read_csv("ddf--gapminder--systema_globalis/countries-etc-datapoints/ddf--datapoints--population_total--by--geo--time.csv",
+col_types = cols(time = col_date(format = "%Y")))
+
+```
+
+
+```{r join_pop}
+g_c <- g_c %>%
+  left_join(pop, by = c("country" = "geo", "year" = "time"))
+rm(pop)
+```
+
+
+## Spørsmål 13
+
+Leser inn gdppercapita_us_inflation_adjusted:
+
+```{r GDP_data}
+gdp_pc <- read_csv("ddf--gapminder--systema_globalis/countries-etc-datapoints/ddf--datapoints--gdppercapita_us_inflation_adjusted--by--geo--time.csv",
+col_types = cols(time = col_date(format = "%Y")))
+```
+
+```{r leftjoin_g_c}
+g_c <- g_c %>%
+  left_join(gdp_pc, by = c("country" = "geo", "year" = "time"))
+
+```
+
+Gir tre variabler tilsvarende navn som i datasettet *gapminder* :
+
+```{r nytt_navn}
+g_c <- g_c %>%
+  rename("lifeExp" = "life_expectancy_years") %>%
+  rename("pop" = "population_total") %>%
+  rename("gdpPercap" = "gdppercapita_us_inflation_adjusted")
+```
+
+```{r}
+names(g_c)
+```
+
+## Spørsmål 14
+
+
+```{r g_c_5}
+t1 <- paste(c(seq(1800, 2015, by = 5), 2019), "01-01", sep = "-") %>%
+  parse_date(format = "%Y-%m-%d")
+
+g_c_5 <- g_c %>%
+  filter(year %in% t1) %>%
+  select(country, name, continent, year, lifeExp, pop, gdpPercap)
+
+dim(g_c_5)
+```
+
+
+```{r}
+g_c_min_yr_gdp <- g_c_5 %>%
+  group_by(gdpPercap) %>% 
+  summarise(min_year = min(year))
+
+g_c_min_yr_gdp %>% 
+  count(min_year = g_c_min_yr_gdp$min_year)
+```
+Her finner vi ikke differansen som individuelt tall. Litt usikker på hvorfor tallene legges sammen.
+
+## Spørsmål 15
+
+
+
+
+
+
+
+```{r subset}
+t2 <- paste(c(seq(1960, 2019, by = 1)), "01-01", sep = "-") %>%
+  parse_date(format = "%Y-%m-%d")
+```
+
+```{r my_gap_minder}
+
+my_gapminder_1960 <- g_c %>%
+  filter(year %in% t2) %>%
+  group_by(country) %>% 
+  select(country, name, continent, year, lifeExp, pop, gdpPercap)
+dim(my_gapminder_1960)
+```
+
+```{r}
+my_gapminder_1960 %>% 
 ```
 
