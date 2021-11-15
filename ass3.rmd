@@ -235,27 +235,159 @@ Her finner vi ikke differansen som individuelt tall. Litt usikker på hvorfor ta
 
 ## Spørsmål 15
 
-
-
-
-
-
-
-```{r subset}
-t2 <- paste(c(seq(1960, 2019, by = 1)), "01-01", sep = "-") %>%
-  parse_date(format = "%Y-%m-%d")
-```
-
-```{r my_gap_minder}
-
-my_gapminder_1960 <- g_c %>%
-  filter(year %in% t2) %>%
-  group_by(country) %>% 
-  select(country, name, continent, year, lifeExp, pop, gdpPercap)
-dim(my_gapminder_1960)
-```
+Lager en chunck for å finne liste over hvilke år hvert enkelt land har målt BNP. Antall år telles opp og resultatet sorteres.
 
 ```{r}
-my_gapminder_1960 %>% 
+g_c <- g_c %>%
+  filter(!is.na(gdpPercap)) %>%
+  group_by(country) %>%
+  summarise(nr=n()) %>%
+  arrange((country))
 ```
 
+Skiller ut land som har rapportert GdpPerkap i lengst periode (60 observasjoner).
+
+```{r}
+g_c_60 <- g_c %>%
+  filter(nr == 60)
+```
+
+I det nye reduserte datasettet sitter vi igjen med 85 observasjoner, og det vil si at det er 85 land som har rapportert GdpPerkap 60 år i strekk.
+
+## Spørsmål 16
+
+Lager nytt datasett for å finne observasjoner uten NA verdier
+
+```{r nytt_datasett_g_c_1960}
+
+c_min_y <- g_c_5 %>%
+  filter(!is.na(gdpPercap)) %>%
+  group_by(country) %>%
+  summarise(min_year = min(year))
+
+```
+
+Sjekker antall land i nytt datasett:
+
+```{r}
+dim(c_min_y)
+```
+
+
+```{r}
+c_min_y_60 <- c_min_y$country[c_min_y$min_year == "1960-01-01"]
+g_c_1960 <- g_c_5 %>%
+  filter(country %in% c_min_y_60)
+```
+
+```{r dimensjoner_nyttdatasett}
+dim(g_c_1960)
+```
+
+```{r land_med_registrertdata}
+
+length(unique(g_c_1960$country))
+```
+
+
+
+Sjekker antall NA verdier:
+
+```{r antall_NA}
+(num_NA <- my_gapminder_1960[is.na(my_gapminder_1960$gdpPercap) == TRUE, ])
+```
+
+For å gi en bedre oversikt over totalt antall NA-verdier bruker vi paste():
+
+```{r NA-verdier}
+
+paste("Antall NA in my_gapminder_1960 er", dim(num_NA)[1], sep = " ")
+```
+
+
+```{r antall_land_per_kontinent}
+
+g_c_1960 %>%
+  distinct(country, continent) %>%
+  group_by(continent) %>%
+  count() %>%
+  kable()
+
+```
+## Spørsmål 17
+
+```{r 1960}
+g_c_1960 %>%
+filter(year <= "1960-01-01") %>%
+  ggplot(mapping = aes(x = gdpPercap, y = lifeExp, size = pop, colour = continent)) +
+  geom_point() +
+  coord_cartesian(ylim = c(20, 90), xlim = c(0,10000)) +
+  theme(legend.position = "bottom")
+```
+
+```{r 1980}
+g_c_1960 %>% 
+  filter(year <= "1980-01-01") %>%
+  ggplot(mapping = aes(x = gdpPercap, y = lifeExp, size = pop, colour = continent)) +
+  geom_point() +
+  coord_cartesian(ylim = c(20, 80), xlim = c(0,50000)) +
+  theme(legend.position = "bottom")
+```
+```{r 2000}
+
+g_c_1960 %>%
+  filter(year <= "2000-01-01") %>%
+  ggplot(mapping = aes(x = gdpPercap, y = lifeExp, size = pop, colour = continent)) +
+  geom_point() +
+  coord_cartesian(ylim = c(20, 90), xlim = c(0,110000)) +
+  theme(legend.position = "bottom")
+
+```
+
+```{r 2019}
+
+g_c_1960 %>%
+  filter(year <= "2019-01-01") %>%
+  ggplot(mapping = aes(x = gdpPercap, y = lifeExp, size = pop, colour = continent)) +
+  geom_point() +
+  coord_cartesian(ylim = c(20, 90), xlim = c(0,110000)) +
+  theme(legend.position = "bottom")
+```
+
+## Spørsmål 18
+
+```{r 1960 log}
+g_c_1960 %>%
+  filter(year <= "1960-01-01") %>%
+  ggplot(mapping = aes(x = log(gdpPercap), y = lifeExp, size = pop, colour = continent)) +
+  geom_point() +
+  coord_cartesian(ylim = c(20, 90), xlim = c(5, 12)) +
+  theme(legend.position = "bottom")
+```
+
+```{r 1980 log}
+g_c_1960 %>%
+  filter(year <= "1980-01-01") %>%
+ ggplot(mapping = aes(x = log(gdpPercap), y = lifeExp, size = pop, colour = continent)) +
+  geom_point() +
+  coord_cartesian(ylim = c(20, 90), xlim = c(5, 12)) +
+  theme(legend.position = "bottom")
+```
+
+```{r 2000 log}
+g_c_1960 %>%
+  filter(year <= "2000-01-01") %>%
+  ggplot(mapping = aes(x = log(gdpPercap), y = lifeExp, size = pop, colour = continent)) +
+  geom_point() +
+  coord_cartesian(ylim = c(20, 90), xlim = c(5, 12)) +
+  theme(legend.position = "bottom")
+```
+
+```{r 2019 log}
+g_c_1960 %>%
+  filter(year <= "2019-01-01") %>%
+  ggplot(mapping = aes(x = log(gdpPercap), y = lifeExp, size = pop, colour = continent)) +
+  geom_point() +
+  coord_cartesian(ylim = c(20, 90), xlim = c(5, 12)) +
+  theme(legend.position = "bottom")
+```
