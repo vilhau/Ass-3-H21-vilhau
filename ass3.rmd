@@ -294,14 +294,14 @@ length(unique(g_c_1960$country))
 Sjekker antall NA verdier:
 
 ```{r antall_NA}
-(num_NA <- my_gapminder_1960[is.na(my_gapminder_1960$gdpPercap) == TRUE, ])
+(num_NA <- g_c_1960[is.na(g_c_1960$gdpPercap) == TRUE, ])
 ```
 
 For å gi en bedre oversikt over totalt antall NA-verdier bruker vi paste():
 
 ```{r NA-verdier}
 
-paste("Antall NA in my_gapminder_1960 er", dim(num_NA)[1], sep = " ")
+paste("Antall NA i my_gapminder_1960 er", dim(num_NA)[1], sep = " ")
 ```
 
 
@@ -391,3 +391,13 @@ g_c_1960 %>%
   coord_cartesian(ylim = c(20, 90), xlim = c(5, 12)) +
   theme(legend.position = "bottom")
 ```
+## Spørsmål 19
+
+Fra 1960 til 2019 har det vært en signifikant økning i antall land som gjennomfører rapportering av BNP per innbygger.
+Gjennom disse 59 årene har det vært høy vekst i BNP per innbygger over samtlige kontinenter, og da spesielt i Asia. Av diagrammene for log(ddpPercap) fremkommer spesielt høy vekst i forventet levealder og BNP per innbygger i Kina og India. Vi ser også av analysene at forventet levealder har økt på generelt basis, men spesielt i asiatiske land. Resultater fra analysene viser en positiv utvikling for både forventet levealder og BNP per innbygger. GG-plottet for 2019 viser at forventet levealder i Asia har gått fra å være lavest til høyest av samtlige kontinenter i analysen, og vi ser dermed den mest signifikante utviklingen her.
+
+## Spørsmål 20
+
+write.table(g_c, file="my_gapminder.csv", sep = ",")
+write.table(g_c_60,file="my_gapminder_red.csv", sep = ",")
+
