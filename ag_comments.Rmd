@@ -1,0 +1,13 @@
+---
+title: "ag_comments"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+-   data mappen heter *ddf--gapminder--systema_globalis* istedenfor *data*
+-   Når dataene er flyttet og pakken prettydoc er installert så er dokumentet reproduserbart. Bra!
+-   Dere har plottet data før et giit år istedenfor for dette året, f.eks data fra før eller lik 1980 istedenfor for år 1980
+-   Nå ser en klarere den dramatiske økningen i forventet levealder selv for de landene som har lav GNP per capita. Videre kan en se et dramatisk skift for «de to store» India og Kina.
+-   Se spm. 7 for triks med `paste0()` for å unngå at lange filnavn går ut i margen
