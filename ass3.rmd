@@ -10,7 +10,6 @@ output:
 lang: no-NB
 ---
 
-
 ```{r setup, message=FALSE, echo=FALSE}
 library(readr)
 library(tibble)
@@ -24,51 +23,66 @@ options(scipen = 999)
 # Spørsmål
 
 ## Spørsmål 1
-Filen fileddf_concepts.csv inneholder ikke dataverdier, men er en tekstfil. Den gir oversikt over informasjon om ulike variabler som for eksempel: populasjonsforhold, sykdomsforhold, arbeidsforhold (arbeidsledighet), antall dødsfall i alder mellom 1-59 måneder og dødsfall av nyfødte barn. Filen inneholder også informasjon om variabler som beskriver lands økonomiske forhold, som BNP.
+
+Filen fileddf_concepts.csv inneholder ikke dataverdier, men er en tekstfil.
+Den gir oversikt over informasjon om ulike variabler som for eksempel: populasjonsforhold, sykdomsforhold, arbeidsforhold (arbeidsledighet), antall dødsfall i alder mellom 1-59 måneder og dødsfall av nyfødte barn.
+Filen inneholder også informasjon om variabler som beskriver lands økonomiske forhold, som BNP.
 
 ## Spørsmål 2
-Filen fileddf--entities--geo--country.csv innholder en oversikt over land og stater. Her beskrives diverse informasjon om levestandard, FN-tilhørighet, inntekt i ulike land kategorisert i lav, middels og høy inntekt.
-Den har også med hvor lokasjonsinformasjon, som for eksempel hvilke region hvert land tilhører. 
+
+Filen fileddf--entities--geo--country.csv innholder en oversikt over land og stater.
+Her beskrives diverse informasjon om levestandard, FN-tilhørighet, inntekt i ulike land kategorisert i lav, middels og høy inntekt.
+Den har også med hvor lokasjonsinformasjon, som for eksempel hvilke region hvert land tilhører.
 
 ## Spørsmål 3
+
 Filen fileddf--entities--geo--un_sdg_region.csv definerer hvilke områder som er FN-regioner.
 
 ## Spørsmål 4
-What variables does thegapminderdataset from thegapminderpackage contain? To what continentare Australia and New Zealand assigned?
 
-Gapminder datasettet er en pakke som består av 1704 rader og 6 variabler. De 6 variablene er:
+What variables does thegapminderdataset from thegapminderpackage contain?
+To what continentare Australia and New Zealand assigned?
 
-- Country: En faktor med 142 nivåer
+Gapminder datasettet er en pakke som består av 1704 rader og 6 variabler.
+De 6 variablene er:
 
-- Continent: En faktor med 5 nivåer
+-   Country: En faktor med 142 nivåer
 
-- Year: Rangeres fra år 1952 til 2007 med trinn på 5 år
+-   Continent: En faktor med 5 nivåer
 
-- Pop: Viser populasjon
+-   Year: Rangeres fra år 1952 til 2007 med trinn på 5 år
 
-- gdpPercap: Viser BNP per innbygger i US $, og er er justert for inflasjon
+-   Pop: Viser populasjon
+
+-   gdpPercap: Viser BNP per innbygger i US \$, og er er justert for inflasjon
 
 ## Spørsmål 5
 
-Videre rekonstrueres continent variabelen fra gapminder datasett. Kun land med koden aiso3166_1_alpha3 inkluderes og tibbelen kalles "g_c".
-
+Videre rekonstrueres continent variabelen fra gapminder datasett.
+Kun land med koden aiso3166_1\_alpha3 inkluderes og tibbelen kalles "g_c".
 
 ```{r g_c}
-g_c <- read_csv("ddf--gapminder--systema_globalis/ddf--entities--geo--country.csv")
+g_c <- read_csv(
+  file = "data/ddf--gapminder--systema_globalis/ddf--entities--geo--country.csv"
+  )
 print (g_c)
 ```
-
 
 ```{r spec}
 spec(g_c)
 ```
 
-
 ```{r continents}
 g_c <- g_c%>%
   mutate(continent = case_when(
-    world_4region == "asia" & un_sdg_region %in% c("un_australia_and_new_zealand","un_oceania_exc_australia_and_new_zealand") ~ "Oceania",
-    world_4region == "asia" & !(un_sdg_region %in% c("un_australia_and_new_zealand", "un_oceania_exc_australia_and_new_zealand")) ~ "Asia",
+    world_4region == "asia" & un_sdg_region %in% c(
+      "un_australia_and_new_zealand",
+      "un_oceania_exc_australia_and_new_zealand"
+      ) ~ "Oceania",
+    world_4region == "asia" & !(un_sdg_region %in% c(
+      "un_australia_and_new_zealand", 
+      "un_oceania_exc_australia_and_new_zealand")
+      ) ~ "Asia",
     world_4region == "africa" ~ "Africa",
     world_4region == "americas" ~ "Americas",
     world_4region == "europe" ~ "Europe")
@@ -77,6 +91,7 @@ g_c <- g_c%>%
 ```
 
 ## Spørsmål 6
+
 ### 1
 
 Viser hvor mange land det er nå:
@@ -95,24 +110,30 @@ g_c %>%
   summarise(countries = length(unique(country)))
 ```
 
-
 ## Spørsmål 7
 
 Ny variabel "lifeExp"
 
 ```{r lifeExp}
-
-lifeExp <- read_csv("ddf--gapminder--systema_globalis/countries-etc-datapoints/ddf--datapoints--life_expectancy_years--by--geo--time.csv",
-                    
-col_types = cols(time = col_date(format = "%Y")))
+lifeExp <- read_csv(
+  # Triks for å unngå at lange filnavn går ut i margen, paste0() er paste() med sep=""
+  file = paste0(
+    "data/ddf--gapminder--systema_globalis/",
+  "countries-etc-datapoints/",
+  "ddf--datapoints--life_expectancy_years--by--geo--time.csv"
+  ),
+  col_types = cols(
+    time = col_date(format = "%Y")
+    )
+  )
 
 lifeExp <- lifeExp %>%
   rename(year = time)
+
 names(lifeExp)
 length(unique(lifeExp$geo))
                 
 ```
-
 
 ## Spørsmål 8
 
@@ -125,7 +146,8 @@ length(unique(lifeExp$geo))
 Fra datasettet *lifeExp* ser vi at 195 har opplysninger om forventet levetid.
 
 ## Spørsmål 9
-Reduserer g_c til disse variablene: country, name, iso3166_1_alpha3, un_sdg_region, world_4region, con-tinent, world_6region.
+
+Reduserer g_c til disse variablene: country, name, iso3166_1\_alpha3, un_sdg_region, world_4region, con-tinent, world_6region.
 
 ```{r redusert_g_c_datasett}
 g_c <- g_c %>%
@@ -139,7 +161,6 @@ rm(lifeExp)
 
 (Måtte ta rm lifeExp for å redusere et enormt antall observasjoner)
 
-
 ## Spørsmål 10
 
 Viser den første observasjonen av lifeExp i ulike land:
@@ -151,9 +172,7 @@ g_c_min <- g_c %>%
 table(g_c_min$min_year)
 ```
 
-
 Vi ser at 186 land har data om forventet levetid fra 1800, og 9 land har data om forventet levetid fra 1950.
-
 
 ## Spørsmål 11
 
@@ -167,11 +186,10 @@ g_c_min %>%
 ## Spørsmål 12
 
 ```{r total_poplation}
-pop <- read_csv("ddf--gapminder--systema_globalis/countries-etc-datapoints/ddf--datapoints--population_total--by--geo--time.csv",
+pop <- read_csv("data/ddf--gapminder--systema_globalis/countries-etc-datapoints/ddf--datapoints--population_total--by--geo--time.csv",
 col_types = cols(time = col_date(format = "%Y")))
 
 ```
-
 
 ```{r join_pop}
 g_c <- g_c %>%
@@ -179,13 +197,12 @@ g_c <- g_c %>%
 rm(pop)
 ```
 
-
 ## Spørsmål 13
 
 Leser inn gdppercapita_us_inflation_adjusted:
 
 ```{r GDP_data}
-gdp_pc <- read_csv("ddf--gapminder--systema_globalis/countries-etc-datapoints/ddf--datapoints--gdppercapita_us_inflation_adjusted--by--geo--time.csv",
+gdp_pc <- read_csv("data/ddf--gapminder--systema_globalis/countries-etc-datapoints/ddf--datapoints--gdppercapita_us_inflation_adjusted--by--geo--time.csv",
 col_types = cols(time = col_date(format = "%Y")))
 ```
 
@@ -210,7 +227,6 @@ names(g_c)
 
 ## Spørsmål 14
 
-
 ```{r g_c_5}
 t1 <- paste(c(seq(1800, 2015, by = 5), 2019), "01-01", sep = "-") %>%
   parse_date(format = "%Y-%m-%d")
@@ -222,7 +238,6 @@ g_c_5 <- g_c %>%
 dim(g_c_5)
 ```
 
-
 ```{r}
 g_c_min_yr_gdp <- g_c_5 %>%
   group_by(gdpPercap) %>% 
@@ -231,11 +246,14 @@ g_c_min_yr_gdp <- g_c_5 %>%
 g_c_min_yr_gdp %>% 
   count(min_year = g_c_min_yr_gdp$min_year)
 ```
-Her finner vi ikke differansen som individuelt tall. Litt usikker på hvorfor tallene legges sammen.
+
+Her finner vi ikke differansen som individuelt tall.
+Litt usikker på hvorfor tallene legges sammen.
 
 ## Spørsmål 15
 
-Lager en chunck for å finne liste over hvilke år hvert enkelt land har målt BNP. Antall år telles opp og resultatet sorteres.
+Lager en chunck for å finne liste over hvilke år hvert enkelt land har målt BNP.
+Antall år telles opp og resultatet sorteres.
 
 ```{r}
 g_c <- g_c %>%
@@ -273,7 +291,6 @@ Sjekker antall land i nytt datasett:
 dim(c_min_y)
 ```
 
-
 ```{r}
 c_min_y_60 <- c_min_y$country[c_min_y$min_year == "1960-01-01"]
 g_c_1960 <- g_c_5 %>%
@@ -289,8 +306,6 @@ dim(g_c_1960)
 length(unique(g_c_1960$country))
 ```
 
-
-
 Sjekker antall NA verdier:
 
 ```{r antall_NA}
@@ -304,7 +319,6 @@ For å gi en bedre oversikt over totalt antall NA-verdier bruker vi paste():
 paste("Antall NA i my_gapminder_1960 er", dim(num_NA)[1], sep = " ")
 ```
 
-
 ```{r antall_land_per_kontinent}
 
 g_c_1960 %>%
@@ -314,29 +328,32 @@ g_c_1960 %>%
   kable()
 
 ```
+
 ## Spørsmål 17
 
 ```{r 1960}
 g_c_1960 %>%
-filter(year <= "1960-01-01") %>%
+  # changed to ==, only 1960, xlim= c(0, 110000) for all years to show change
+filter(year == "1960-01-01") %>%
   ggplot(mapping = aes(x = gdpPercap, y = lifeExp, size = pop, colour = continent)) +
   geom_point() +
-  coord_cartesian(ylim = c(20, 90), xlim = c(0,10000)) +
+  coord_cartesian(ylim = c(20, 90), xlim = c(0,110000)) +
   theme(legend.position = "bottom")
 ```
 
 ```{r 1980}
 g_c_1960 %>% 
-  filter(year <= "1980-01-01") %>%
+  filter(year == "1980-01-01") %>%
   ggplot(mapping = aes(x = gdpPercap, y = lifeExp, size = pop, colour = continent)) +
   geom_point() +
-  coord_cartesian(ylim = c(20, 80), xlim = c(0,50000)) +
+  coord_cartesian(ylim = c(20, 90), xlim = c(0,110000)) +
   theme(legend.position = "bottom")
 ```
+
 ```{r 2000}
 
 g_c_1960 %>%
-  filter(year <= "2000-01-01") %>%
+  filter(year == "2000-01-01") %>%
   ggplot(mapping = aes(x = gdpPercap, y = lifeExp, size = pop, colour = continent)) +
   geom_point() +
   coord_cartesian(ylim = c(20, 90), xlim = c(0,110000)) +
@@ -347,7 +364,7 @@ g_c_1960 %>%
 ```{r 2019}
 
 g_c_1960 %>%
-  filter(year <= "2019-01-01") %>%
+  filter(year == "2019-01-01") %>%
   ggplot(mapping = aes(x = gdpPercap, y = lifeExp, size = pop, colour = continent)) +
   geom_point() +
   coord_cartesian(ylim = c(20, 90), xlim = c(0,110000)) +
@@ -358,7 +375,7 @@ g_c_1960 %>%
 
 ```{r 1960 log}
 g_c_1960 %>%
-  filter(year <= "1960-01-01") %>%
+  filter(year == "1960-01-01") %>%
   ggplot(mapping = aes(x = log(gdpPercap), y = lifeExp, size = pop, colour = continent)) +
   geom_point() +
   coord_cartesian(ylim = c(20, 90), xlim = c(5, 12)) +
@@ -367,7 +384,7 @@ g_c_1960 %>%
 
 ```{r 1980 log}
 g_c_1960 %>%
-  filter(year <= "1980-01-01") %>%
+  filter(year == "1980-01-01") %>%
  ggplot(mapping = aes(x = log(gdpPercap), y = lifeExp, size = pop, colour = continent)) +
   geom_point() +
   coord_cartesian(ylim = c(20, 90), xlim = c(5, 12)) +
@@ -376,7 +393,7 @@ g_c_1960 %>%
 
 ```{r 2000 log}
 g_c_1960 %>%
-  filter(year <= "2000-01-01") %>%
+  filter(year == "2000-01-01") %>%
   ggplot(mapping = aes(x = log(gdpPercap), y = lifeExp, size = pop, colour = continent)) +
   geom_point() +
   coord_cartesian(ylim = c(20, 90), xlim = c(5, 12)) +
@@ -385,19 +402,26 @@ g_c_1960 %>%
 
 ```{r 2019 log}
 g_c_1960 %>%
-  filter(year <= "2019-01-01") %>%
+  filter(year == "2019-01-01") %>%
   ggplot(mapping = aes(x = log(gdpPercap), y = lifeExp, size = pop, colour = continent)) +
   geom_point() +
   coord_cartesian(ylim = c(20, 90), xlim = c(5, 12)) +
   theme(legend.position = "bottom")
 ```
+
 ## Spørsmål 19
 
 Fra 1960 til 2019 har det vært en signifikant økning i antall land som gjennomfører rapportering av BNP per innbygger.
-Gjennom disse 59 årene har det vært høy vekst i BNP per innbygger over samtlige kontinenter, og da spesielt i Asia. Av diagrammene for log(ddpPercap) fremkommer spesielt høy vekst i forventet levealder og BNP per innbygger i Kina og India. Vi ser også av analysene at forventet levealder har økt på generelt basis, men spesielt i asiatiske land. Resultater fra analysene viser en positiv utvikling for både forventet levealder og BNP per innbygger. GG-plottet for 2019 viser at forventet levealder i Asia har gått fra å være lavest til høyest av samtlige kontinenter i analysen, og vi ser dermed den mest signifikante utviklingen her.
+Gjennom disse 59 årene har det vært høy vekst i BNP per innbygger over samtlige kontinenter, og da spesielt i Asia.
+Av diagrammene for log(ddpPercap) fremkommer spesielt høy vekst i forventet levealder og BNP per innbygger i Kina og India.
+Vi ser også av analysene at forventet levealder har økt på generelt basis, men spesielt i asiatiske land.
+Resultater fra analysene viser en positiv utvikling for både forventet levealder og BNP per innbygger.
+GG-plottet for 2019 viser at forventet levealder i Asia har gått fra å være lavest til høyest av samtlige kontinenter i analysen, og vi ser dermed den mest signifikante utviklingen her.
 
 ## Spørsmål 20
 
-write.table(g_c, file="my_gapminder.csv", sep = ",")
-write.table(g_c_60,file="my_gapminder_red.csv", sep = ",")
+write.table(g_c, file="my_gapminder.csv", sep = ",") write.table(g_c\_60,file="my_gapminder_red.csv", sep = ",")
 
+```{r, echo = FALSE}
+# siste
+```
